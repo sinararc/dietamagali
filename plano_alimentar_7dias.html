@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plano Alimentar 7 Dias</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --verde: #3B6D11;
+    --verde-claro: #EAF3DE;
+    --verde-mid: #639922;
+    --terracota: #C05A2F;
+    --terracota-claro: #FAECE7;
+    --creme: #FAF8F3;
+    --cinza-texto: #3A3A38;
+    --cinza-suave: #F5F3EE;
+    --cinza-borda: #DDD9D0;
+    --amarelo: #BA7517;
+    --amarelo-claro: #FAEEDA;
+    --azul: #185FA5;
+    --azul-claro: #E6F1FB;
+    --roxo: #534AB7;
+    --roxo-claro: #EEEDFE;
+    --danger: #A32D2D;
+    --danger-claro: #FCEBEB;
+  }
+  body { font-family: 'DM Sans', sans-serif; background: var(--creme); color: var(--cinza-texto); font-size: 15px; line-height: 1.7; }
+
+  /* HEADER */
+  .header { background: var(--verde); padding: 2.5rem 2rem 2rem; color: white; position: relative; overflow: hidden; }
+  .header::before { content: ''; position: absolute; top: -40px; right: -40px; width: 220px; height: 220px; border-radius: 50%; background: rgba(255,255,255,0.04); }
+  .header::after { content: ''; position: absolute; bottom: -60px; left: 40%; width: 300px; height: 300px; border-radius: 50%; background: rgba(255,255,255,0.03); }
+  .header-inner { max-width: 900px; margin: 0 auto; position: relative; z-index: 1; }
+  .header h1 { font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 500; letter-spacing: -0.02em; margin-bottom: 0.5rem; }
+  .header-sub { font-size: 13px; opacity: 0.75; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 1.5rem; }
+  .badges { display: flex; flex-wrap: wrap; gap: 8px; }
+  .badge { font-size: 11px; padding: 4px 12px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.25); background: rgba(255,255,255,0.1); letter-spacing: 0.02em; }
+  .profile-strip { max-width: 900px; margin: 0 auto; background: white; padding: 1rem 2rem; display: flex; flex-wrap: wrap; gap: 1.5rem; border-bottom: 1px solid var(--cinza-borda); }
+  .profile-item { display: flex; flex-direction: column; }
+  .profile-item .lbl { font-size: 10px; text-transform: uppercase; letter-spacing: 0.07em; color: #888; }
+  .profile-item .val { font-size: 13px; font-weight: 500; color: var(--cinza-texto); }
+
+  /* MAIN */
+  .main { max-width: 900px; margin: 0 auto; padding: 1.5rem 1rem 4rem; }
+
+  /* DAY TABS */
+  .days-nav { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 1.5rem; }
+  .day-tab { font-size: 12px; font-weight: 500; padding: 7px 14px; border-radius: 20px; border: 1px solid var(--cinza-borda); background: white; cursor: pointer; color: #888; transition: all 0.15s; letter-spacing: 0.01em; }
+  .day-tab:hover { border-color: var(--verde); color: var(--verde); }
+  .day-tab.active { background: var(--verde); border-color: var(--verde); color: white; }
+
+  /* DAY CARD */
+  .day-panel { display: none; }
+  .day-panel.active { display: block; animation: fadeIn 0.2s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+  .day-header { font-family: 'Playfair Display', serif; font-size: 1.4rem; font-weight: 500; margin-bottom: 1.25rem; color: var(--verde); display: flex; align-items: center; gap: 12px; }
+  .day-header span { font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 400; background: var(--verde-claro); color: var(--verde); padding: 3px 10px; border-radius: 12px; }
+  .kcal-bar { background: var(--cinza-suave); border-radius: 10px; padding: 12px 16px; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; border: 1px solid var(--cinza-borda); }
+  .kcal-item { display: flex; align-items: center; gap: 6px; font-size: 13px; }
+  .kcal-dot { width: 8px; height: 8px; border-radius: 50%; }
+  .kcal-label { color: #888; }
+  .kcal-val { font-weight: 500; color: var(--cinza-texto); }
+
+  /* MEALS */
+  .meals-grid { display: flex; flex-direction: column; gap: 10px; }
+  .meal-card { background: white; border-radius: 12px; border: 1px solid var(--cinza-borda); overflow: hidden; }
+  .meal-header { padding: 10px 16px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--cinza-borda); }
+  .meal-icon { width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; }
+  .meal-title { font-weight: 500; font-size: 13px; letter-spacing: 0.01em; }
+  .meal-time { font-size: 11px; color: #aaa; margin-left: auto; }
+  .meal-body { padding: 12px 16px; }
+  .meal-items { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+  .meal-items li { font-size: 14px; line-height: 1.5; display: flex; gap: 8px; }
+  .meal-items li::before { content: '–'; color: var(--cinza-borda); flex-shrink: 0; }
+  .meal-qty { color: #888; font-size: 12px; margin-left: 4px; }
+  .meal-tip { font-size: 12px; color: var(--verde); background: var(--verde-claro); border-radius: 6px; padding: 6px 10px; margin-top: 10px; line-height: 1.5; }
+
+  /* MEAL COLORS */
+  .cafe .meal-icon { background: var(--amarelo-claro); color: var(--amarelo); }
+  .cafe .meal-title { color: var(--amarelo); }
+  .lanche-m .meal-icon { background: var(--verde-claro); color: var(--verde); }
+  .lanche-m .meal-title { color: var(--verde); }
+  .almoco .meal-icon { background: var(--terracota-claro); color: var(--terracota); }
+  .almoco .meal-title { color: var(--terracota); }
+  .lanche-t .meal-icon { background: var(--azul-claro); color: var(--azul); }
+  .lanche-t .meal-title { color: var(--azul); }
+  .jantar .meal-icon { background: var(--roxo-claro); color: var(--roxo); }
+  .jantar .meal-title { color: var(--roxo); }
+
+  /* NOTES */
+  .notes-section { margin-top: 2rem; background: white; border-radius: 14px; border: 1px solid var(--cinza-borda); overflow: hidden; }
+  .notes-header { padding: 14px 20px; background: var(--cinza-suave); border-bottom: 1px solid var(--cinza-borda); font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 500; }
+  .notes-body { padding: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 580px) { .notes-body { grid-template-columns: 1fr; } }
+  .note-block { border-radius: 10px; padding: 14px; }
+  .note-block h4 { font-size: 12px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }
+  .note-block ul { list-style: none; display: flex; flex-direction: column; gap: 5px; }
+  .note-block ul li { font-size: 13px; line-height: 1.5; display: flex; gap: 7px; }
+  .note-block ul li::before { content: '✓'; flex-shrink: 0; font-size: 11px; margin-top: 2px; }
+  .note-proibido ul li::before { content: '✕'; }
+  .note-verde { background: var(--verde-claro); }
+  .note-verde h4, .note-verde li::before { color: var(--verde); }
+  .note-danger { background: var(--danger-claro); }
+  .note-danger h4, .note-danger li::before { color: var(--danger); }
+  .note-azul { background: var(--azul-claro); }
+  .note-azul h4, .note-azul li::before { color: var(--azul); }
+  .note-amarelo { background: var(--amarelo-claro); }
+  .note-amarelo h4, .note-amarelo li::before { color: var(--amarelo); }
+
+  /* DISCLAIMER */
+  .disclaimer { text-align: center; font-size: 12px; color: #aaa; max-width: 600px; margin: 2rem auto 0; line-height: 1.6; }
+
+  @media print {
+    .days-nav { display: none; }
+    .day-panel { display: block !important; page-break-after: always; }
+    body { background: white; }
+  }
+  @media (max-width: 500px) {
+    .header h1 { font-size: 1.5rem; }
+    .profile-strip { padding: 0.75rem 1rem; gap: 1rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <p class="header-sub">Nutrição Clínica · Planejamento Semanal</p>
+    <h1>Plano Alimentar — 7 Dias</h1>
+    <div class="badges">
+      <span class="badge">Pré-diabetes</span>
+      <span class="badge">Ácido úrico elevado</span>
+      <span class="badge">Dislipidemia</span>
+      <span class="badge">Hipertensão</span>
+    </div>
+  </div>
+</div>
+
+<div class="profile-strip">
+  <div class="profile-item"><span class="lbl">Paciente</span><span class="val">Feminino, 55 anos</span></div>
+  <div class="profile-item"><span class="lbl">Peso</span><span class="val">85 kg</span></div>
+  <div class="profile-item"><span class="lbl">Meta calórica</span><span class="val">≈ 1.400–1.500 kcal/dia</span></div>
+  <div class="profile-item"><span class="lbl">Sódio máximo</span><span class="val">2 g/dia</span></div>
+  <div class="profile-item"><span class="lbl">Hidratação</span><span class="val">Mínimo 2L de água</span></div>
+</div>
+
+<div class="main">
+  <div class="days-nav" id="tabs">
+    <button class="day-tab active" onclick="switchDay(0)">Seg</button>
+    <button class="day-tab" onclick="switchDay(1)">Ter</button>
+    <button class="day-tab" onclick="switchDay(2)">Qua</button>
+    <button class="day-tab" onclick="switchDay(3)">Qui</button>
+    <button class="day-tab" onclick="switchDay(4)">Sex</button>
+    <button class="day-tab" onclick="switchDay(5)">Sáb</button>
+    <button class="day-tab" onclick="switchDay(6)">Dom</button>
+  </div>
+
+  <!-- DIA 1 -->
+  <div class="day-panel active" id="day-0">
+    <div class="day-header">Segunda-feira <span>Dia 1 · Foco: Fibras e controle glicêmico</span></div>
+    <div class="kcal-bar">
+      <div class="kcal-item"><div class="kcal-dot" style="background:#BA7517"></div><span class="kcal-label">Estimativa:</span><span class="kcal-val">~1.430 kcal</span></div>
+      <div class="kcal-item"><div class="kcal-dot" style="background:#3B6D11"></div><span class="kcal-label">Carboidratos:</span><span class="kcal-val">~160g (complexos)</span></div>
+      <div class="kcal-item"><div class="kcal-dot" style="background:#C05A2F"></div><span class="kcal-label">Proteínas:</span><span class="kcal-val">~95g</span></div>
+      <div class="kcal-item"><div class="kcal-dot" style="background:#534AB7"></div><span class="kcal-label">Gorduras:</span><span class="kcal-val">~45g (insaturadas)</span></div>
+    </div>
+    <div class="meals-grid">
+      <div class="meal-card cafe">
+        <div class="meal-header"><div class="meal-icon">☀</div><span class="meal-title">Café da manhã</span><span class="meal-time">07h–08h</span></div>
+        <div class="meal-body"><ul class="meal-items">
+          <li>Mingau de aveia com canela <span class="meal-qty">4 colheres de sopa de aveia + 200ml leite desnatado</span></li>
+          <li>1 maçã média com casca <span class="meal-qty">evitar descascar — a casca tem pectina</span></li>
+          <li>Chá de hibisco sem açúcar <span class="meal-qty">200ml — auxilia na pressão</span></li>
+        </ul>
+        <div class="meal-tip">A aveia reduz a absorção de glicose e colesterol. A canela potencializa o efeito no açúcar no sangue.</div></div>
+      </div>
+      <div class="meal-card lanche-m">
+        <div class="meal-header"><div class="meal-icon">🌿</div><span class="meal-title">Lanche da manhã</span><span class="meal-time">10h–10h30</span></div>
+        <div class="meal-body"><ul class="meal-items">
+          <li>1 fatia média de melão <span class="meal-qty">150g — baixo IG e rico em potássio</span></li>
+          <li>10 castanhas-do-pará <span class="meal-qty">fonte de selênio e gordura boa — não exceder</span></li>
+        </ul></div>
+      </div>
+      <div class="meal-card almoco">
+        <div class="meal-header"><div class="meal-icon">🍽</div><span class="meal-title">Almoço</span><span class="meal-time">12h–13h</span></div>
+        <div class="meal-body"><ul class="meal-items">
+          <li>Arroz integral cozido <span class="meal-qty">3 colheres de sopa cheias</span></li>
+          <li>Feijão carioca cozido <span class="meal-qty">1 concha pequena</span></li>
+          <li>Peito de frango grelhado <span class="meal-qty">150g temperado com ervas, limão e alho — sem sal extra</span></li>
+          <li>Salada verde variada <span class="meal-qty">alface, rúcula, pepino — à vontade</span></li>
+          <li>Cenoura crua ralada <span class="meal-qty">3 colheres de sopa</span></li>
+          <li>Azeite de oliva extra virgem <span class="meal-qty">1 colher de sopa para temperar a salada</span></li>
+        </ul>
+        <div class="meal-tip">A combinação arroz integral + feijão forma proteína completa de baixo índice glicêmico. Ideal para pré-diabéticos.</div></div>
+      </div>
+      <div class="meal-card lanche-t">
+        <div class="meal-header"><div class="meal-icon">☁</div><span class="meal-title">Lanche da tarde</span><span class="meal-time">15h–16h</span></div>
+        <div class="meal-body"><ul class="meal-items">
+          <li>Iogurte natural desnatado <span class="meal-qty">1 pote (170g) sem açúcar</span></li>
+          <li>Sementes de chia <span class="meal-qty">1 colher de sopa — anti-inflamatório</span></li>
+          <li>5 morangos frescos <span class="meal-qty">baixo IG, rico em vitamina C</span></li>
+        </ul></div>
+      </div>
+      <div class="meal-card jantar">
+        <div class="meal-header"><div class="meal-icon">🌙</div><span class="meal-title">Jantar</span><span class="meal-time">19h–20h</span></div>
+        <div class="meal-body"><ul class="meal-items">
+          <li>Sopa de legumes com frango desfiado <span class="meal-qty">chuchu, cenoura, abobrinha, cebola, alho — sem sal extra</span></li>
+          <li>1 fatia de pão integral <span class="meal-qty">opcional — apenas se sentir fome</span></li>
+          <li>Chá de camomila <span class="meal-qty">relaxante, sem açúcar</span></li>
+        </ul>
+        <div class="meal-tip">Jantar leve e quente favorece o sono e evita picos glicêmicos noturnos.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DIA 2 -->
+  <div class="day-panel" id="day-1">
+    <div class="day-header">Terça-feira <span>Dia 2 · Foco: Proteína magra e ômega-3</span></div>
+    <div class="kcal-bar">
+      <div class="kcal-item"><div class="kcal-dot" style="background:#BA7517"></div><span class="kcal-label">Estimativa:</span><span class="kcal-val">~1.450 kcal</span></div>
+      <div class="kcal-item"><div class="kcal-dot" style="background:#3B6D11"></div><span class="kcal-label">Carboidratos:</span><span class="kcal-val">~145g</span></div>
+      <div class="kcal-item"><div class="kcal-dot" style="background:#C05A2F"></div><span class="kcal-label">Proteínas:</span><span class="kcal-val">~105g</span></div>
+      <div class="kcal-item"><div class="kcal-dot" style="background:#534AB7"></div><span class="kcal-label">Gorduras:</span><span class="kcal-val">~48g</span></div>
+    </div>
+    <div class="meals-grid">
+      <div class="meal-card cafe">
+        <div class="meal-header"><div class="meal-icon">☀</div><span class="meal-title">Café da manhã</span><span class="meal-time">07h–08h</span></div>
+        <div class="meal-body"><ul class="meal-items">
+          <li>Ovos mexidos com tomate e cebola <span class="meal-qty">2 ovos — mexidos em antiaderente sem manteiga</span></li>
+          <li>1 fatia de pão integral <span class="meal-qty">sem margarina ou manteiga</span></li>
+          <li>Chá verde sem açúcar <span class="meal-qty">200ml — antioxidante e diurético leve</span></li>
+        </ul>
+        <div class="meal-tip">O ovo é proteína completa de alta biodisponibilidade. 2 ovos por dia são seguros para a maioria dos perfis.</div></div>
+      </div>
+      <div class="meal-card lanche-m">
+        <div class="meal-header"><div class="meal-icon">🌿</div><span class="meal-title">Lanche da manhã</span><span class="meal-time">10h–10h30</span></div>
+        <div class="meal-body"><ul class="meal-items">
+          <li>1 pera média <span class="meal-qty">com casca — rico em fibras solúveis</span></li>
+          <li>1 punhado pequeno de amendoim torrado sem sal <span class="meal-qty">~20g</span></li>
+        </ul></div>
+      </div>
+      <div class="meal-card almoco">
+        <div class="meal-header"><div class="meal-icon">🍽</div><span class="meal-title">Almoço</span><span class="meal-time">12h–13h</span></div>
+        <div class="meal-body"><ul class="meal-items">
+          <li>Quinoa cozida <span class="meal-qty">3 colheres de sopa — proteína vegetal completa</span></li>
+          <li>Tilápia assada com limão e alecrim <span class="meal-qty">150g — peixe de baixa purina</span></li>
+          <li>Brócolis cozido no vapor <span class="meal-qty">1 xícara — não cozinhar demais</span></li>
+          <li>Salada de alface, tomate, cebola roxa <span class="meal-qty">à vontade</span></li>
+          <li>Azeite de oliva <span class="meal-qty">1 colher de sopa + suco de limão</span></li>
+        </ul>
+        <div class="meal-tip">Peixe branco é excelente para esse perfil: proteína magra, sem purinas em excesso e rico em ômega-3.</div></div>
+      </div>
+      <div class="meal-card lanche-t">
+        <div class="meal-header"><div class="meal-icon">☁</div><span class="meal-title">Lanche da tarde</span><span class="meal-time">15h–16h</span></div>
+        <div class="meal-body"><ul class="meal-items">
+          <li>Vitamina de morango com leite desnatado <span class="meal-qty">100g morango + 150ml leite — sem açúcar, sem mel</span></li>
+          <li>1 colher de sopa de linhaça moída <span class="meal-qty">misturar na vitamina</span></li>
+        </ul></div>
+      </div>
+      <div class="meal-card jantar">
+        <div class="meal-header"><div class="meal-icon">🌙</div><span class="meal-title">Jantar</span><span class="meal-time">19h–20h</span></div>
+        <div class="meal-body"><ul class="meal-items">
+          <li>Omelete de espinafre, tomate e cebola <span class="meal-qty">2 ovos — feita sem óleo, antiaderente</span></li>
+          <li>Salada verde com pepino e cenoura <span class="meal-qty">à vontade com azeite</span></li>
+          <li>Água com gás e limão <span class="meal-qty">sem sódio — verificar rótulo</span></li>
+        </ul></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DIA 3 -->
+  <div class="day-panel" id="day-2">
+    <div class="day-header">Quarta-feira <span>Dia 3 · Foco: Anti-inflamatório</span></div>
+    <div class="kcal-bar">
+      <div class="kcal-item"><div class="kcal-dot" style="background:#BA7517"></div><span class="kcal-label">Estimativa:</span><span class="kcal-val">~1.420 kcal</span></div>
+      <div class="kcal-item"><div class="kcal-dot" style="background:#3B6D11"></div><span class="kcal-label">Carboidratos:</span><span class="kcal-val">~155g</span></div>
+      <div class="kcal-item"><div class="kcal-dot" style="background:#C05A2F"></div><span class="kcal-label">Proteínas:</span><span class="kcal-val">~92g</span></div>
+      <div class="kcal-item"><div class="kcal-dot" style="background:#534AB7"></div><span class="kcal-label">Gorduras:</span><span class="kcal-val">~44g</span></div>
+    </div>
+    <div class="meals-grid">
+      <div class="meal-card cafe">
+        <div class="meal-header"><div class="meal-icon">☀</div><span class="meal-title">Café da manhã</span><span class="meal-time">07h–08h</span></div>
+        <div class="meal-body"><ul class="meal-items">
+          <li>Tapioca com queijo branco magro e tomate <span class="meal-qty">2 colheres de sopa de goma de tapioca + 2 fatias queijo branco</span></li>
+          <li>1 laranja pequena <span class="meal-qty">comer a fruta, não o suco — preserve as fibras</span></li>
+          <li>Chá de gengibre com limão <span class="meal-qty">anti-inflamatório natural</span></li>
+        </ul></div>
+      </div>
+      <div class="meal-card lanche-m">
+        <div class="meal-header"><div class="meal-icon">🌿</div><span class="meal-title">Lanche da manhã</span><span class="meal-time">10h–10h30</span></div>
+        <div class="meal-body"><ul class="meal-items">
+          <li>1 banana pequena <span class="meal-qty">rica em potássio — auxilia na pressão</span></li>
+          <li>2 colheres de sopa de sementes de linhaça <span class="meal-qty">sobre a banana fatiada</span></li>
+        </ul>
+        <div class="meal-tip">A banana deve ser firme (menos madura) para ter menor índice glicêmico.</div></div>
+      </div>
+      <div class="meal-card almoco">
+        <div class="meal-header"><div class="meal-icon">🍽</div><span class="meal-title">Almoço</span><span class="meal-time">12h–13h</span></div>
+        <div class="meal-body"><ul class="meal-items">
+          <li>Arroz integral <span class="meal-qty">3 colheres de sopa</span></li>
+          <li>Lentilha cozida <span class="meal-qty">½ concha — moderação por conta das purinas</span></li>
+          <li>Peito de frango grelhado <span class="meal-qty">150g com ervas finas</span></li>
+          <li>Couve refogada com alho e azeite <span class="meal-qty">1 xícara — rica em cálcio e ferro</span></li>
+          <li>Salada à vontade <span class="meal-qty">pepino, alface, rabanete</span></li>
+        </ul></div>
+      </div>
+      <div class="meal-card lanche-t">
+        <div class="meal-header"><div class="meal-icon">☁</div><span class="meal-title">Lanche da tarde</span><span class="meal-time">15h–16h</span></div>
+        <div class="meal-body"><ul class="meal-items">
+          <li>Palitinhos de cenoura e pepino <span class="meal-qty">½ cenoura + ½ pepino em tiras</span></li>
+          <li>Homus (pasta de grão-de-bico) <span class="meal-qty">2 colheres de sopa — sem sal extra</span></li>
+        </ul></div>
+      </div>
+      <div class="meal-card jantar">
+        <div class="meal-header"><div class="meal-icon">🌙</div><span class="meal-title">Jantar</span><span class="meal-time">19h–20h</span></div>
+        <div class="meal-body"><ul class="meal-items">
+          <li>Caldo de frango com legumes <span class="meal-qty">caldo caseiro com chuchu, cenoura, abobrinha, alho, cebola</span></li>
+          <li>2 torradas integrais <span class="meal-qty">sem margarina</span></li>
+          <li>Chá de erva-doce <span class="meal-qty">digestivo e relaxante</span></li>
+        </ul></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DIA 4 -->
+  <div class="day-panel" id="day-3">
+    <div class="day-header">Quinta-feira <span>Dia 4 · Foco: Potássio e batata-doce</span></div>
+    <div class="kcal-bar">
+      <div class="kcal-item"><div class="kcal-dot" style="background:#BA7517"></div><span class="kcal-label">Estimativa:</span><span class="kcal-val">~1.460 kcal</span></div>
+      <div class="kcal-item"><div class="kcal-dot" style="background:#3B6D11"></div><span class="kcal-label">Carboidratos:</span><span class="kcal-val">~150g</span></div>
+      <div class="kcal-item"><div class="kcal-dot" style="background:#C05A2F"></div><span class="kcal-label">Proteínas:</span><span class="kcal-val">~100g</span></div>
+      <div class="kcal-item"><div class="kcal-dot" style="background:#534AB7"></div><span class="kcal-label">Gorduras:</span><span class="kcal-val">~50g</span></div>
+    </div>
+    <div class="meals-grid">
+      <div class="meal-card cafe">
+        <div class="meal-header"><div class="meal-icon">☀</div><span class="meal-title">Café da manhã</span><span class="meal-time">07h–08h</span></div>
+        <div class="meal-body"><ul class="meal-items">
+          <li>Vitamina de banana pequena com aveia <span class="meal-qty">1 banana pequena + 150ml leite desnatado + 2 col aveia — sem açúcar</span></li>
+          <li>1 ovo cozido <span class="meal-qty">proteína extra para saciedade</span></li>
+          <li>Chá de hibisco <span class="meal-qty">200ml sem açúcar</span></li>
+        </ul></div>
+      </div>
+      <div class="meal-card lanche-m">
+        <div class="meal-header"><div class="meal-icon">🌿</div><span class="meal-title">Lanche da manhã</span><span class="meal-time">10h–10h30</span></div>
+        <div class="meal-body"><ul class="meal-items">
+          <li>1 maçã verde <span class="meal-qty">baixo IG e rica em quercetina</span></li>
+          <li>10 nozes <span class="meal-qty">ricas em ômega-3 e ajudam a reduzir LDL</span></li>
+        </ul></div>
+      </div>
+      <div class="meal-card almoco">
+        <div class="meal-header"><div class="meal-icon">🍽</div><span class="meal-title">Almoço</span><span class="meal-time">12h–13h</span></div>
+        <div class="meal-body"><ul class="meal-items">
+          <li>Batata-doce assada <span class="meal-qty">1 unidade média (150g) — substituto saudável do arroz branco</span></li>
+          <li>Frango ao molho de ervas e tomate <span class="meal-qty">150g com alho, orégano, manjericão</span></li>
+          <li>Espinafre refogado no azeite <span class="meal-qty">1 xícara</span></li>
+          <li>Salada de beterraba cozida <span class="meal-qty">3 fatias — auxilia na pressão arterial</span></li>
+          <li>Salada verde à vontade</li>
+        </ul>
+        <div class="meal-tip">A batata-doce tem índice glicêmico muito inferior ao arroz branco e é rica em beta-caroteno.</div></div>
+      </div>
+      <div class="meal-card lanche-t">
+        <div class="meal-header"><div class="meal-icon">☁</div><span class="meal-title">Lanche da tarde</span><span class="meal-time">15h–16h</span></div>
+        <div class="meal-body"><ul class="meal-items">
+          <li>Iogurte grego desnatado <span class="meal-qty">1 pote pequeno (100g)</span></li>
+          <li>Morangos frescos <span class="meal-qty">6 unidades</span></li>
+          <li>1 colher de chá de canela <span class="meal-qty">polvilhada — potencializa controle glicêmico</span></li>
+        </ul></div>
+      </div>
+      <div class="meal-card jantar">
+        <div class="meal-header"><div class="meal-icon">🌙</div><span class="meal-title">Jantar</span><span class="meal-time">19h–20h</span></div>
+        <div class="meal-body"><ul class="meal-items">
+          <li>Tilápia ou merluza ao forno com ervas <span class="meal-qty">150g com alecrim, limão, azeite</span></li>
+          <li>Legumes assados <span class="meal-qty">abobrinha, berinjela e cebola — temperados com azeite e ervas</span></li>
+          <li>Chá verde <span class="meal-qty">sem açúcar</span></li>
+        </ul></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DIA 5 -->
+  <div class="day-panel" id="day-4">
+    <div class="day-header">Sexta-feira <span>Dia 5 · Foco: Gorduras boas</span></div>
+    <div class="kcal-bar">
+      <div class="kcal-item"><div class="kcal-dot" style="background:#BA7517"></div><span class="kcal-label">Estimativa:</span><span class="kcal-val">~1.440 kcal</span></div>
+      <div class="kcal-item"><div class="kcal-dot" style="background:#3B6D11"></div><span class="kcal-label">Carboidratos:</span><span class="kcal-val">~148g</span></div>
+      <div class="kcal-item"><div class="kcal-dot" style="background:#C05A2F"></div><span class="kcal-label">Proteínas:</span><span class="kcal-val">~97g</span></div>
+      <div class="kcal-item"><div class="kcal-dot" style="background:#534AB7"></div><span class="kcal-label">Gorduras:</span><span class="kcal-val">~52g</span></div>
+    </div>
+    <div class="meals-grid">
+      <div class="meal-card cafe">
+        <div class="meal-header"><div class="meal-icon">☀</div><span class="meal-title">Café da manhã</span><span class="meal-time">07h–08h</span></div>
+        <div class="meal-body"><ul class="meal-items">
+          <li>Mingau de aveia com morango <span class="meal-qty">4 col aveia + 200ml leite desnatado + 5 morangos fatiados</span></li>
+          <li>Chá de gengibre com limão <span class="meal-qty">anti-inflamatório + auxilia na excreção de ácido úrico</span></li>
+        </ul></div>
+      </div>
+      <div class="meal-card lanche-m">
+        <div class="meal-header"><div class="meal-icon">🌿</div><span class="meal-title">Lanche da manhã</span><span class="meal-time">10h–10h30</span></div>
+        <div class="meal-body"><ul class="meal-items">
+          <li>Mix de sementes sem sal <span class="meal-qty">1 col sopa de abóbora + 1 col de girassol</span></li>
+          <li>1 fatia de melão <span class="meal-qty">150g</span></li>
+        </ul></div>
+      </div>
+      <div class="meal-card almoco">
+        <div class="meal-header"><div class="meal-icon">🍽</div><span class="meal-title">Almoço</span><span class="meal-time">12h–13h</span></div>
+        <div class="meal-body"><ul class="meal-items">
+          <li>Arroz integral <span class="meal-qty">3 colheres de sopa</span></li>
+          <li>Grão-de-bico cozido <span class="meal-qty">½ concha — rico em fibras e proteína</span></li>
+          <li>Peito de frango grelhado <span class="meal-qty">130g</span></li>
+          <li>Abacate <span class="meal-qty">2 colheres de sopa — gordura monoinsaturada, reduz LDL</span></li>
+          <li>Salada verde + tomate + cebola <span class="meal-qty">à vontade com limão e azeite</span></li>
+        </ul>
+        <div class="meal-tip">O abacate é aliado direto da dislipidemia. Consumir com moderação por ser calórico, mas suas gorduras são excelentes.</div></div>
+      </div>
+      <div class="meal-card lanche-t">
+        <div class="meal-header"><div class="meal-icon">☁</div><span class="meal-title">Lanche da tarde</span><span class="meal-time">15h–16h</span></div>
+        <div class="meal-body"><ul class="meal-items">
+          <li>1 pêssego fresco <span class="meal-qty">ou 1 nectarina</span></li>
+          <li>Chá frio de hibisco <span class="meal-qty">preparar em casa, sem açúcar</span></li>
+        </ul></div>
+      </div>
+      <div class="meal-card jantar">
+        <div class="meal-header"><div class="meal-icon">🌙</div><span class="meal-title">Jantar</span><span class="meal-time">19h–20h</span></div>
+        <div class="meal-body"><ul class="meal-items">
+          <li>Creme de abóbora caseiro <span class="meal-qty">200ml — abóbora cozida batida com caldo de legumes e alho, sem creme de leite</span></li>
+          <li>1 fatia de pão integral <span class="meal-qty">tostado</span></li>
+          <li>Chá de camomila <span class="meal-qty">relaxante para o fim do dia</span></li>
+        </ul></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DIA 6 -->
+  <div class="day-panel" id="day-5">
+    <div class="day-header">Sábado <span>Dia 6 · Foco: Receitas especiais sem abrir mão da saúde</span></div>
+    <div class="kcal-bar">
+      <div class="kcal-item"><div class="kcal-dot" style="background:#BA7517"></div><span class="kcal-label">Estimativa:</span><span class="kcal-val">~1.480 kcal</span></div>
+      <div class="kcal-item"><div class="kcal-dot" style="background:#3B6D11"></div><span class="kcal-label">Carboidratos:</span><span class="kcal-val">~152g</span></div>
+      <div class="kcal-item"><div class="kcal-dot" style="background:#C05A2F"></div><span class="kcal-label">Proteínas:</span><span class="kcal-val">~98g</span></div>
+      <div class="kcal-item"><div class="kcal-dot" style="background:#534AB7"></div><span class="kcal-label">Gorduras:</span><span class="kcal-val">~50g</span></div>
+    </div>
+    <div class="meals-grid">
+      <div class="meal-card cafe">
+        <div class="meal-header"><div class="meal-icon">☀</div><span class="meal-title">Café da manhã</span><span class="meal-time">08h–09h</span></div>
+        <div class="meal-body"><ul class="meal-items">
+          <li>Panqueca de banana e aveia <span class="meal-qty">1 banana amassada + 3 col aveia + 1 ovo — fritar em antiaderente seco</span></li>
+          <li>Frutas vermelhas frescas <span class="meal-qty">morango e amora — ricas em antioxidantes</span></li>
+          <li>Café com leite desnatado <span class="meal-qty">sem açúcar ou adoçar com canela</span></li>
+        </ul>
+        <div class="meal-tip">Essa panqueca é o "café especial de sábado" — sem farinha, sem açúcar, sem culpa.</div></div>
+      </div>
+      <div class="meal-card lanche-m">
+        <div class="meal-header"><div class="meal-icon">🌿</div><span class="meal-title">Lanche da manhã</span><span class="meal-time">10h30–11h</span></div>
+        <div class="meal-body"><ul class="meal-items">
+          <li>Castanhas mistas sem sal <span class="meal-qty">10 unidades (nozes, castanha-do-pará, amêndoa)</span></li>
+          <li>1 kiwi <span class="meal-qty">rico em vitamina C — auxilia excreção do ácido úrico</span></li>
+        </ul></div>
+      </div>
+      <div class="meal-card almoco">
+        <div class="meal-header"><div class="meal-icon">🍽</div><span class="meal-title">Almoço</span><span class="meal-time">12h30–13h30</span></div>
+        <div class="meal-body"><ul class="meal-items">
+          <li>Peixe assado com crosta de ervas <span class="meal-qty">150g tilápia/merluza + alecrim, limão, alho e azeite</span></li>
+          <li>Salada de quinoa com legumes <span class="meal-qty">quinoa + tomate cereja + pepino + coentro + limão</span></li>
+          <li>Brócolis no vapor <span class="meal-qty">1 xícara — rico em sulforafano, anti-inflamatório</span></li>
+        </ul></div>
+      </div>
+      <div class="meal-card lanche-t">
+        <div class="meal-header"><div class="meal-icon">☁</div><span class="meal-title">Lanche da tarde</span><span class="meal-time">15h–16h</span></div>
+        <div class="meal-body"><ul class="meal-items">
+          <li>Vitamina de mamão com leite desnatado <span class="meal-qty">½ mamão pequeno + 150ml leite — sem açúcar</span></li>
+          <li>1 colher de sopa de chia <span class="meal-qty">misturar na vitamina</span></li>
+        </ul>
+        <div class="meal-tip">O mamão é digestivo, rico em betacaroteno e tem baixo índice glicêmico.</div></div>
+      </div>
+      <div class="meal-card jantar">
+        <div class="meal-header"><div class="meal-icon">🌙</div><span class="meal-title">Jantar</span><span class="meal-time">19h–20h</span></div>
+        <div class="meal-body"><ul class="meal-items">
+          <li>Frango ao forno com ervas finas <span class="meal-qty">130g — coxa sem pele ou peito</span></li>
+          <li>Purê de couve-flor <span class="meal-qty">couve-flor cozida batida com azeite e alho — substituto do purê de batata</span></li>
+          <li>Salada verde à vontade</li>
+        </ul></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DIA 7 -->
+  <div class="day-panel" id="day-6">
+    <div class="day-header">Domingo <span>Dia 7 · Foco: Variedade e prazer à mesa</span></div>
+    <div class="kcal-bar">
+      <div class="kcal-item"><div class="kcal-dot" style="background:#BA7517"></div><span class="kcal-label">Estimativa:</span><span class="kcal-val">~1.470 kcal</span></div>
+      <div class="kcal-item"><div class="kcal-dot" style="background:#3B6D11"></div><span class="kcal-label">Carboidratos:</span><span class="kcal-val">~158g</span></div>
+      <div class="kcal-item"><div class="kcal-dot" style="background:#C05A2F"></div><span class="kcal-label">Proteínas:</span><span class="kcal-val">~95g</span></div>
+      <div class="kcal-item"><div class="kcal-dot" style="background:#534AB7"></div><span class="kcal-label">Gorduras:</span><span class="kcal-val">~47g</span></div>
+    </div>
+    <div class="meals-grid">
+      <div class="meal-card cafe">
+        <div class="meal-header"><div class="meal-icon">☀</div><span class="meal-title">Café da manhã</span><span class="meal-time">08h–09h</span></div>
+        <div class="meal-body"><ul class="meal-items">
+          <li>Tapioca com ricota e tomate cereja <span class="meal-qty">2 col goma + 2 col ricota amassada + 5 tomates cereja</span></li>
+          <li>Chá verde com hortelã <span class="meal-qty">200ml sem açúcar</span></li>
+          <li>1 fatia de mamão <span class="meal-qty">digestivo</span></li>
+        </ul></div>
+      </div>
+      <div class="meal-card lanche-m">
+        <div class="meal-header"><div class="meal-icon">🌿</div><span class="meal-title">Lanche da manhã</span><span class="meal-time">10h30–11h</span></div>
+        <div class="meal-body"><ul class="meal-items">
+          <li>1 pera madura <span class="meal-qty">com casca</span></li>
+          <li>5 amêndoas sem sal <span class="meal-qty">ricas em vitamina E e magnésio</span></li>
+        </ul></div>
+      </div>
+      <div class="meal-card almoco">
+        <div class="meal-header"><div class="meal-icon">🍽</div><span class="meal-title">Almoço</span><span class="meal-time">12h30–13h30</span></div>
+        <div class="meal-body"><ul class="meal-items">
+          <li>Arroz integral <span class="meal-qty">3 colheres de sopa</span></li>
+          <li>Feijão carioca <span class="meal-qty">1 concha pequena</span></li>
+          <li>Contrafilé grelhado magro <span class="meal-qty">130g — sem gordura aparente, temperado com ervas e limão</span></li>
+          <li>Couve refogada com alho e azeite <span class="meal-qty">1 xícara</span></li>
+          <li>Salada de pepino com cebola roxa <span class="meal-qty">à vontade com vinagre e azeite</span></li>
+        </ul>
+        <div class="meal-tip">Carne vermelha magra 1x na semana está permitida. Evitar excessos — prefira grelhado sem gordura.</div></div>
+      </div>
+      <div class="meal-card lanche-t">
+        <div class="meal-header"><div class="meal-icon">☁</div><span class="meal-title">Lanche da tarde</span><span class="meal-time">15h–16h</span></div>
+        <div class="meal-body"><ul class="meal-items">
+          <li>Iogurte natural desnatado <span class="meal-qty">1 pote (170g)</span></li>
+          <li>1 colher de sopa de chia <span class="meal-qty">deixar hidratar 5 minutos</span></li>
+          <li>5 morangos ou 1 kiwi <span class="meal-qty">à escolha</span></li>
+        </ul></div>
+      </div>
+      <div class="meal-card jantar">
+        <div class="meal-header"><div class="meal-icon">🌙</div><span class="meal-title">Jantar</span><span class="meal-time">19h–20h</span></div>
+        <div class="meal-body"><ul class="meal-items">
+          <li>Sopa de legumes variados <span class="meal-qty">batata-doce, cenoura, abobrinha, brócolis, alho, cebola — caldo caseiro</span></li>
+          <li>1 ovo cozido <span class="meal-qty">proteína extra no jantar leve</span></li>
+          <li>Chá de erva-cidreira <span class="meal-qty">relaxante — encerra bem a semana</span></li>
+        </ul></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ORIENTAÇÕES GERAIS -->
+  <div class="notes-section">
+    <div class="notes-header">Orientações gerais da semana</div>
+    <div class="notes-body">
+      <div class="note-block note-verde">
+        <h4>Recomendados sempre</h4>
+        <ul>
+          <li>Mínimo 2 litros de água por dia</li>
+          <li>Azeite de oliva como gordura principal</li>
+          <li>Grãos integrais no lugar dos refinados</li>
+          <li>Frutas com casca para preservar fibras</li>
+          <li>Chás sem açúcar (hibisco, verde, gengibre)</li>
+          <li>Temperos naturais: alho, cebola, ervas, limão</li>
+        </ul>
+      </div>
+      <div class="note-block note-danger note-proibido">
+        <h4>Proibidos ou muito restritos</h4>
+        <ul>
+          <li>Açúcar branco, mel e adoçantes em excesso</li>
+          <li>Embutidos: salsicha, presunto, linguiça</li>
+          <li>Vísceras: fígado, rim (elevam ácido úrico)</li>
+          <li>Refrigerantes e sucos industrializados</li>
+          <li>Bebidas alcoólicas (qualquer tipo)</li>
+          <li>Sal de adição — usar ervas no lugar</li>
+          <li>Frituras e alimentos ultraprocessados</li>
+        </ul>
+      </div>
+      <div class="note-block note-azul">
+        <h4>Estratégias de preparo</h4>
+        <ul>
+          <li>Preferir grelhar, assar, cozinhar e vapor</li>
+          <li>Usar panela antiaderente para ovos e frango</li>
+          <li>Cozinhar feijão e legumes sem sal (temperar depois)</li>
+          <li>Fazer caldos caseiros sem cubinhos industriais</li>
+          <li>Fracionar: comer de 3 em 3 horas</li>
+        </ul>
+      </div>
+      <div class="note-block note-amarelo">
+        <h4>Metas semanais</h4>
+        <ul>
+          <li>Peixe branco pelo menos 3x na semana</li>
+          <li>Frango sem pele como proteína principal</li>
+          <li>Carne vermelha magra no máximo 1–2x</li>
+          <li>Legumes e folhas em todas as refeições</li>
+          <li>Caminhada leve de 20–30 min por dia</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <p class="disclaimer">Este plano é uma referência educativa. Acompanhamento com nutricionista e médico é indispensável para adequar porções, avaliar exames e ajustar conforme evolução clínica individual.</p>
+</div>
+
+<script>
+function switchDay(i) {
+  document.querySelectorAll('.day-panel').forEach((p,j) => p.classList.toggle('active', j === i));
+  document.querySelectorAll('.day-tab').forEach((t,j) => t.classList.toggle('active', j === i));
+}
+</script>
+</body>
+</html>
